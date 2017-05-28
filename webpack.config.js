@@ -21,4 +21,8 @@ module.exports = {
             loader: 'ts-loader'
         }]
     },
+    node: {
+        net: 'empty',
+        fs: 'empty'
+    }
 }
