@@ -1,11 +1,12 @@
-var express = require('express');
-var linebot = require('linebot');
-var request = require('request');
+const express = require('express');
+const linebot = require('linebot');
+const request = require('request');
+const bodyParser = require('body-parser');
 
 // parameter setting
-var homepageUrl = 'https://line-bot-oahehc.herokuapp.com/';
+const homepageUrl = 'https://line-bot-oahehc.herokuapp.com/';
 // line
-var bot = linebot({
+const bot = linebot({
     channelId: process.env.channelId,
     channelSecret: process.env.channelSecret,
     channelAccessToken: process.env.channelAccessToken,
@@ -13,17 +14,14 @@ var bot = linebot({
 
 // functions
 function lineReply(event, msgObj) { // send line reply msg
-    event.reply(msgObj).then(function (data) {
+    event.reply(msgObj).then((data) => {
         console.log('reply success', data);
-    }).catch(function (error) {
-        console.log('reply fail', error);
-    });
+    }).catch(error => console.log('reply fail', error));
 }
 
 function reportToHost(msgObjArray) { // send msg to host account
-    var passwordArray = JSON.parse(process.env.HostUserId);
-    var userId = passwordArray[0];
-    var options = {
+    const userId = process.env.HostUserId;
+    const options = {
         method: 'POST',
         uri: 'https://api.line.me/v2/bot/message/push',
         headers: {
@@ -48,7 +46,7 @@ function reportToHost(msgObjArray) { // send msg to host account
 }
 
 function pushMsg(userId, msgObj) { // push msg to user
-    var options = {
+    const options = {
         method: 'POST',
         uri: 'https://api.line.me/v2/bot/message/push',
         headers: {
@@ -90,25 +88,32 @@ bot.on('message', function (event) {
 
 
 // start express server
-var path = require('path');
-var app = express();
-var linebotParser = bot.parser();
+const path = require('path');
+const app = express();
+const linebotParser = bot.parser();
 app.post('/', linebotParser);
-var port = process.env.PORT || '3000';
+const port = process.env.PORT || '3000';
 app.set('port', port);
 
-app.post('/lottery', (req, res, next) => {
-    var password = req.query.q;
-    var passwordArray = JSON.parse(process.env.HostUserId);
-    if (passwordArray.indexOf(password) > -1) { // check password
-        fs.readFile(dataFile, function (err, content) {
-            if (err) {
-                console.log('Error loading client secret file: ' + err);
-                return;
-            }
-            var data = JSON.parse(content);
-            res.send(data);
-        });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
+app.post('/test', function (req, res) {
+    console.log('req', req);
+    console.log('body', req.body);
+    console.log('msg', req.body.lineMsg);
+    reportToHost(req.body.lineMsg);
+    res.send('success');
+    // res.end();
+});
+
+app.post('/pushMsg', (req, res, next) => {
+    const password = req.body.password;
+    const msgArray = req.body.lineMsg;
+    if (password === process.env.password) { // check password
+
+        res.send('success');
     } else {
         res.end();
     }

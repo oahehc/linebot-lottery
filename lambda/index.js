@@ -10,7 +10,7 @@ exports.handler = (event, context, callback) => {
             const $ = cheerio.load(sres.text);
             const tableContent = {};
             const result = {};
-            $('.table_org').each((index, element) => { // table_gre
+            $('table.td_hm').each((index, element) => { // table_gre
                 const $element = $(element);
                 const tableArray = $element.text().split('\n').map(data => data.trim());
                 tableContent[index] = tableArray;
@@ -18,10 +18,12 @@ exports.handler = (event, context, callback) => {
                     date: tableArray[11],
                     number: tableArray.slice(33, 40).join('、'),
                     winner: tableArray[74],
-                    accumulateAmount: tableArray[98],
+                    prize: tableArray[86],
+                    accumulatePrize: tableArray[98],
                 };
+                // tableArray.forEach((data, index) => console.log(index, data));
             });
-            console.log(result);
+            console.log(result[0], result[1]);
             callback(null, result);
         });
 };
