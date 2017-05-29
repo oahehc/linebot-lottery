@@ -156,5 +156,5 @@ exports.handler = (event, context, callback) => {
 2. adjust timeout to 20 sec
 ![lambda timeout](http://i.imgur.com/ciV7ebg.png)
 
-
 ### (C) AWS cloudwatch: auto trigger lambda per week
+![lambda trigger](http://i.imgur.com/ZfJBueq.png)
